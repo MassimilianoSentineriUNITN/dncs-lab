@@ -2,17 +2,17 @@ FirstName: Massimiliano
 LastName: Sentineri
 MatriculationNumber: 193770
 AcademicYear: 2019-2020
-GitHubUrl: YourGithubRepositoryURL
+GitHubUrl: https://github.com/MassimilianoSentineriUNITN/dncs-lab.git
 Subnets:
   HostsA:
     RequiredAddresses: 495
-    SubnetAddress: YourHostsASubnetAddress
-    SubnetPrefixLength: YourHostsASubnetPrefixLength
+    SubnetAddress: 10.11.0.1
+    SubnetPrefixLength: 255.255.254.0
   HostsB:
     RequiredAddresses: 316
-    SubnetAddress: YourHostsBSubnetAddress
-    SubnetPrefixLength: YourHostsBSubnetPrefixLength
+    SubnetAddress: 10.12.0.1
+    SubnetPrefixLength: 255.255.254.0
   Hub:
     RequiredAddresses: 338
-    SubnetAddress: YourHubSubnetAddress
-    SubnetPrefixLength: YourHubSubnetPrefixLength
+    SubnetAddress: 10.15.0.1
+    SubnetPrefixLength: 255.255.254.0
