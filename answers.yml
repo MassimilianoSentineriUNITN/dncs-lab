@@ -6,13 +6,13 @@ GitHubUrl: https://github.com/MassimilianoSentineriUNITN/dncs-lab.git
 Subnets:
   HostsA:
     RequiredAddresses: 495
-    SubnetAddress: 10.11.0.1
-    SubnetPrefixLength: 255.255.254.0
+    SubnetAddress: 10.11.0.0
+    SubnetPrefixLength: 23
   HostsB:
     RequiredAddresses: 316
-    SubnetAddress: 10.12.0.1
-    SubnetPrefixLength: 255.255.254.0
+    SubnetAddress: 10.12.0.0
+    SubnetPrefixLength: 23
   Hub:
     RequiredAddresses: 338
-    SubnetAddress: 10.15.0.1
-    SubnetPrefixLength: 255.255.254.0
+    SubnetAddress: 10.15.0.0
+    SubnetPrefixLength: 23

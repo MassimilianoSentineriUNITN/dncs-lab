@@ -117,24 +117,42 @@ The assignment deliverable consists of a Github repository containing:
 
 
 # Design
-Our idea about developing the infrastructure was to split it in two parts in a first phase and then ‘paste’ them together. 
 
-The first part that we developed included the router-1, the switch, host-a and host-b.
-We began with Host-a: it needs to accommodate up to 495 devices, so our subnet mask has to be 255.255.254.0; for the project our purpose was to use IP address that would have been easy to recognize so as subnet address we used 10.11.0.0. in this host we turned on the enp0s8 link and gave it the IP address 10.11.0.1/23.
+## Authors and notes
+This project has been developed by Massimiliano Sentineri (mat. 193770) and Gabriele Bottamedi (mad. 193208) in equal parts working always in pair on the same device. We had some trubles while running vagrant with Windows OS, so we had to use a MacOS device.  
 
-After Host-a we implemented host-b: it needs to accommodate up to 316 devices, so our subnet mask has to be 255.255.254.0; for this subnet we used the IP address 10.12.0.0. in this host we turned on the enp0s8 link and gave it the IP address 10.12.0.1/23.
+## Planning
+Our idea about developing the infrastructure was to split it in two parts in a first phase, develop them as separate and then link them together. Part one is: host-a, host-b, switch and router-1; two other part is router-2 and host-c. We decided to use for the subnet IP address that would have been easy to recognize so each subnet IP address is 8 bits next to the previous one. Our goal is to build an architecture with 4 subnets: one from host-a to router-1 (10.11.0.0), one from host-b to router-1 (10.12.0.0), one between router-1 and router-2 (10.14.0.0) and one from host-c to router-2 (10.15.0.0).
 
-Then we began working on the switch: that was not easy, and while working on this we realised that to test it we had to work also on the router-1. We installed the openvswitch packages, and sat emp0s8, emp0s9 and enp0s10 links up; at this point we had some trouble to understand how we could implement the vlans.
-Searching for documentation to do it we found ‘https://developers.redhat.com/blog/2017/09/14/vlan-filter-support-on-bridge/’  and ‘https://vda-it.blogspot.com/2014/03/introduzione-alle-reti-3-switch.html’. Thanks to these examples we understood that we had to build the vlans in the router-1. We found different ways to develop the vlans: we choose to split the router-1’s enp0s8 link in two separate virtual ports. We saw this as the easiest way to make host-a and host-b communicate as they would have been in two separate subnets. We gave to the two virtual ports IP addresses which at the beginning was 10.13.0.1/23, 10.13.0.2/23 for enp0s8.1 and enp0s8.2; while in the switch we sat up a bridge between the 3 ports. Once done so we were ready to set up the routes. 
+## Developing
+### Developing part one
+- Host-a: it needs to accommodate up to 495 devices, as subnet IP addresses we used 10.11.0.0/23; in this host we turned on the enp0s8 interface with IP address 10.11.0.1/23. 
+- Host-b: it needs to accommodate up to 316 devices, as subnet IP addresses we used 10.12.0.0/23; we turned on the enp0s8 interface with IP address 10.12.0.1/23.
+- Switch: we had to learn how to build the vlans to keep host-a and host-b in separate subnets. We installed the openvswitch packages, and set enp0s8, enp0s9 and enp0s10 links up. Searching for documentation to do it we found ‘https://developers.redhat.com/blog/2017/09/14/vlan-filter-support-on-bridge/’ and ‘https://vda-it.blogspot.com/2014/03/introduzione-alle-reti-3-switch.html’. At this point we understood that we had to build the vlans in the router-1.
+- Router-1: we turned enp0s8 port up. To develop the vlans we chose to split the router-1’s enp0s8 link in two separate virtual ports (8.1 and 8.2), both to be connected with the switch’s port enp0s8. In the switch a bridge has been set up to connect enp0s8, enp0s9 and enp0s10 ports. The bridge is built to manage packages coming from host-a and host-b to router-1 and vice versa. In this way we made host-a and host-b communicate only via router. We gave to the two virtual ports IP addresses 10.11.0.2/23, 10.12.0.2/23 for enp0s8.1 and enp0s8.2. We gave the router the command 'sysctl net.ipv4.ip_forward=1' to enable the router to forward packages.
 
-We made some tests and we understood that this part of the architecture worked.
+In this architecture there are 2 vlans: one for host-a (subnet 10.11.0.0) and one for host-b (subnet 10.12.0.0). 
+At this point we set up the routes: one form host-a to host-b via the router and one form host-b to host-a via the router. 
 
-At this point we began working on the second half of the project: the host-c and the router-2. we implemented host-c knowing that it needs to accommodate up to 316 devices,
-so, our subnet mask must be 255.255.254.0; for this subnet at the beginning we used the IP address 10.15.0.0. In this host we turned on the enp0s8 link and gave it the IP address 10.15.0.1/23.
-then we developed router-2: we made it as if it was in it’s own subnet (10.14.0.0) and we turned on enp0s8 port as 10.14.0.1/23 and enp0s9 port as 10.14.0.2/23. We turned on also the enp0s9 port of the router-1 as 10.13.0.3/23. First, we made the routes to connect router-2 and host-c then the routes to connect router-1 and router-2. 
-While testing we found some conflicts and some links weren’t working properly.
+### Testing first phase
+To test the infrastructure, we used ping commands. We pinged from host-a to router-1, from host-a to host-b, from host-b to router-1 and from host-b to host-a; this part of the architecture worked.
 
-We understood that the routers to work in the right way should be connectors for subnets so the fact was that routers ports should have IP addresses as part of the subnets which they are connected with; so we rearranged the IP addresses and the routes: we build an architecture with 5 subnets: one from host-a to the switch (10.11.0.0), one from host-b to the switch (10.12.0.0), one between the switch and router-1 (10.13.0.0), one between router-1 and router-2 (10.14.0.0) and one from host-c to router-2 (10.15.0.0). 
+### Developing part two
+- Host-c: knowing that it needs to accommodate up to 316 devices, as subnet IP addresses we used 10.15.0.0/23; then we turned on the enp0s8 link with IP address 10.15.0.1/23.
+- Router-2: we made it to connect host-c subnet to the network connected to router-1. We turned on enp0s8 port as 10.15.0.2/23 (subnet 10.15.0.0 shared with host-c) and enp0s9 port as 10.14.0.2/23 (subnet 10.14.0.0 shared between touter-1 and router-2). We turned on also the enp0s9 port of the router-1 as 10.14.0.1/23. In this way the touters are connectors for subnets. We gave the router the command 'sysctl net.ipv4.ip_forward=1' to enable the router to forward packages. 
 
-At this point our architecture was working well, so we began studying how to import the docker image: we consulted ‘https://docs.docker.com/’ and then we ran the commands that we found; we made some tests and they gave us good results. 
- 
+We set up the generic routes to connect router-2 nework to router-1 network.  
+
+## Docker
+we began studying how to import the docker image: we consulted ‘https://docs.docker.com/’. We ran the commands that we found; we made some tests and they gave us good results. It runs on port 80.
+
+### Final testing 
+We used ping commands to check all the routes; and "curl 10.15.0.1:80" to test the server based on host-c. The result is that the architecture works.
+
+## Commands
+To run the infrastructure use "vagrant up".
+To test connections use "ping <IP address>".
+To test the server on host-c use "curl 10.15.0.1:80".
+
+## Notes
+In the github repository there is a middle commit of an old version of the architecture that includes a wrong subnet scheme thas has been corrected in the final commit. 
